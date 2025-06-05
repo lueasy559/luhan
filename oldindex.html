@@ -7,33 +7,18 @@
 <html>
 	<head>
 		<title>鹿&韩</title>
-		<！script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="/assets/css/main.css" />
-		<link href="https://vjs.zencdn.net/7.11.4/video-js.css" rel="stylesheet">
-    		<script src="https://vjs.zencdn.net/7.11.4/video.js"></script>
-    		<script src="https://cdn.jsdelivr.net/npm/videojs-contrib-hls@5.15.0/dist/videojs-contrib-hls.min.js"></script>
+		<link href="https://vjs.zencdn.net/7.20.3/video-js.min.css" rel="stylesheet">
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
 	<body class="is-preload">
+	   	 <!-- Video.js 核心库 -->
+    			<script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+    
 
 
-<script>
-			const video = document.getElementById('video');
- 			 const videoUrl = 'https://559479.xyz/out/final.m3u8';
-
-			  if (Hls.isSupported()) {
- 			   const hls = new Hls();
-  		  hls.on(Hls.Events.ERROR, (event, data) => {
-   		   console.error('HLS 错误:', data);
-   		 });
-    hls.loadSource(videoUrl);
-    hls.attachMedia(video);
-  } else {
-    console.error('浏览器不支持 HLS');
-  }
-</script>
 
 
 
@@ -69,7 +54,22 @@
 						<!-- Intro -->
 							<article id="intro">
 								<h2 class="major">跟拍视频1</h2>
-								<video id="video" controls width="280" height="160" ></video>
+								        <!-- 视频播放器容器 -->
+        <video
+            id="hls-player"
+            class="video-js vjs-default-skin"
+            controls
+            preload="auto"
+            width="280"
+            height="160"
+            poster="https://via.placeholder.com/800x450?text=视频加载中..."
+            data-setup='{}'
+        >
+            <source src="https://559479.xyz/out2/part1.m3u8" type="application/x-mpegURL">
+            <p class="vjs-no-js">
+                您的浏览器不支持 HTML5 视频，请使用现代浏览器（如 Chrome、Firefox、Edge）。
+            </p>
+        </video>
 
 								<p> 视频太长分为3段，此为第1段</p>
 							</article>
@@ -77,8 +77,22 @@
 						<!-- Work -->
 							<article id="work">
 								<h2 class="major">跟拍视频2</h2>
-								<video width="280" height="160" controls  src="https://pub-082cd026d71a450dab3670e7382b1936.r2.dev/tes.mp4"
-								</video>
+								<!video width="280" height="160" controls  src="https://pub-082cd026d71a450dab3670e7382b1936.r2.dev/tes.mp4"
+								<!/video>
+								  <video
+            id="hls-player"
+            class="video-js vjs-default-skin"
+            controls
+            preload="auto"
+            width="280"
+            height="160"
+            poster="https://via.placeholder.com/800x450?text=视频加载中..."
+            data-setup='{}'
+        >
+            <source src="https://559479.xyz/out2/part1.m3u8" type="application/x-mpegURL">
+            <p class="vjs-no-js">
+                您的浏览器不支持 HTML5 视频，请使用现代浏览器（如 Chrome、Firefox、Edge）。
+            </p>
 								<p> 视频太长分为33段，此为第2段</p>
 								
 							</article>
@@ -144,6 +158,49 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
+			<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化播放器
+            const player = videojs('hls-player', {
+                html5: {
+                    vhs: {
+                        overrideNative: true,  // 强制使用 VHS 处理 HLS
+                        bufferWater: 300,       // 缓冲水位（秒）
+                        bandwidth: 2000000,    // 初始带宽估算（bps）
+                        limitRenditionByPlayerDimensions: false // 禁用自动分辨率切换
+                    }
+                },
+                inactivityTimeout: 0 // 防止播放器自动暂停
+            });
+
+            // 错误处理
+            let retryCount = 0;
+            const maxRetries = 3;
+            
+            player.on('error', function() {
+                const error = player.error();
+                document.getElementById('error').textContent = `播放错误: ${error ? error.message : '未知错误'}`;
+                
+                if (retryCount < maxRetries) {
+                    retryCount++;
+                    console.log(`尝试重新加载 (${retryCount}/${maxRetries})...`);
+                    
+                    // 5秒后重试
+                    setTimeout(function() {
+                        player.src({
+                            src: 'https://559479.xyz/out/final.m3u8',
+                            type: 'application/x-mpegURL'
+                        });
+                        player.play();
+                    }, 5000);
+                } else {
+                    console.error('超过最大重试次数，请检查视频源');
+                }
+            });
+
+            // 调试信息
+            
+    </script>
 
 
 	</body>
