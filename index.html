@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HLS 播放示例 - Video.js</title>
+  <!-- 1. 引入 Video.js CSS -->
+  <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+    .video-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="video-container">
+    <h1>HLS 视频播放器</h1>
+    <!-- 2. 创建 video 元素 -->
+    <video
+      id="my-video"
+      class="video-js vjs-default-skin"
+      controls
+      preload="auto"
+      width="800"
+      height="450"
+      data-setup="{}"
+    >
+      <!-- 3. 指定 M3U8 视频源 -->
+      <source src="https://559479.xyz/out/final.m3u8" type="application/x-mpegURL" />
+      <p class="vjs-no-js">
+        您的浏览器不支持 HTML5 视频，请使用现代浏览器（如 Chrome、Firefox、Edge）访问。
+      </p>
+    </video>
+  </div>
+
+  <!-- 4. 引入必要的 JS 库 -->
+  <!-- Video.js 核心库 -->
+  <script src="https://vjs.zencdn.net/7.15.4/video.min.js"></script>
+  <!-- HLS 插件（videojs-contrib-hls 的后续版本） -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/5.15.0/videojs-contrib-hls.min.js"></script>
+
+  <!-- 5. 初始化播放器 -->
+  <script>
+    // 确保 DOM 加载完成
+    document.addEventListener('DOMContentLoaded', function() {
+      // 初始化 Video.js 播放器
+      var player = videojs('my-video');
+      
+      // 监听错误事件
+      player.on('error', function() {
+        console.error('播放错误:', player.error());
+      });
+      
+      // 打印播放器信息（调试用）
+      player.ready(function() {
+        console.log('播放器已初始化，技术:', player.techName_);
+      });
+    });
+  </script>
+</body>
+</html>
