@@ -165,8 +165,8 @@
                     vhs: {
                         overrideNative: true,  // 强制使用 VHS 处理 HLS
                         bufferWater: 300,       // 缓冲水位（秒）
-                        bandwidth: 2000000,    // 初始带宽估算（bps）
-                        limitRenditionByPlayerDimensions: false // 禁用自动分辨率切换
+                        bandwidth: 50000000,    // 初始带宽估算（bps）
+                        limitRenditionByPlayerDimensions: true   // 自动分辨率切换
                     }
                 },
                 inactivityTimeout: 0 // 防止播放器自动暂停
