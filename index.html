@@ -1,31 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <title>HLS 播放示例</title>
-  <!-- Video.js CSS -->
-  <link href="https://vjs.zencdn.net/7.20.3/video-js.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HLS 视频播放器 - 完整解决方案</title>
+    <!-- Video.js 7.x 样式 -->
+    <link href="https://vjs.zencdn.net/7.20.3/video-js.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .player-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .error-message {
+            color: red;
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-  <video
-    id="my-player"
-    class="video-js"
-    controls
-    preload="auto"
-    width="640"
-    height="360"
-    data-setup='{}'
-  >
-    <source src="https://559479.xyz/out/final.m3u8" type="application/x-mpegURL">
-  </video>
+    <div class="player-container">
+        <h1>HLS 视频播放器</h1>
+        <div id="error" class="error-message"></div>
+        
+        <!-- 视频播放器容器 -->
+        <video
+            id="hls-player"
+            class="video-js vjs-default-skin"
+            controls
+            preload="auto"
+            width="800"
+            height="450"
+            poster="https://via.placeholder.com/800x450?text=视频加载中..."
+            data-setup='{}'
+        >
+            <source src="https://559479.xyz/out/final.m3u8" type="application/x-mpegURL">
+            <p class="vjs-no-js">
+                您的浏览器不支持 HTML5 视频，请使用现代浏览器（如 Chrome、Firefox、Edge）。
+            </p>
+        </video>
+    </div>
 
-  <!-- Video.js 核心库 -->
-  <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+    <!-- Video.js 核心库 -->
+    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+    
+    <!-- 错误恢复和优化脚本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化播放器
+            const player = videojs('hls-player', {
+                html5: {
+                    vhs: {
+                        overrideNative: true,  // 强制使用 VHS 处理 HLS
+                        bufferWater: 30,       // 缓冲水位（秒）
+                        bandwidth: 2000000,    // 初始带宽估算（bps）
+                        limitRenditionByPlayerDimensions: false // 禁用自动分辨率切换
+                    }
+                },
+                inactivityTimeout: 0 // 防止播放器自动暂停
+            });
 
-  <script>
-    // 自动初始化（通过 data-setup）
-    // 或手动初始化：
-    // const player = videojs('my-player');
-  </script>
+            // 错误处理
+            let retryCount = 0;
+            const maxRetries = 3;
+            
+            player.on('error', function() {
+                const error = player.error();
+                document.getElementById('error').textContent = `播放错误: ${error ? error.message : '未知错误'}`;
+                
+                if (retryCount < maxRetries) {
+                    retryCount++;
+                    console.log(`尝试重新加载 (${retryCount}/${maxRetries})...`);
+                    
+                    // 5秒后重试
+                    setTimeout(function() {
+                        player.src({
+                            src: 'https://559479.xyz/out/final.m3u8',
+                            type: 'application/x-mpegURL'
+                        });
+                        player.play();
+                    }, 5000);
+                } else {
+                    console.error('超过最大重试次数，请检查视频源');
+                }
+            });
+
+            // 调试信息
+            player.ready(function() {
+                console.log('播放器已初始化，使用技术:', player.techName_);
+                
+                // 监听分片加载事件
+                player.tech().on('usage', function(event) {
+                    if (event.name === 'vhs-segment-loader') {
+                        console.debug('加载分片:', event.data.segment);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
